@@ -1,0 +1,68 @@
+<LoginScreen>
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Login Screen'
+        TextInput:
+            id: username_field
+            hint_text: 'username'
+            multiline: False
+            write_tab: False
+        TextInput:
+            id: password_field
+            hint_text: 'password'
+            password: True
+            multiline: False
+            write_tab: False
+        Button:
+            text: 'Login'
+            on_press:
+                root.attempt_login()
+        Button:
+            text: 'Create Account'
+            on_press: root.switch_to_create_account()
+
+<VerificationScreen>
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: label
+            text: 'Please enter the verification code sent to {}'
+        TextInput:
+            multiline: False
+            id: code_field
+        Button:
+            text: 'Submit'
+
+<CreateAccountScreen>
+    username: username_field.text
+    password: password_field.text
+    phone: phone_field.text
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Create Account Screen'
+        TextInput:
+            id: username_field
+            hint_text: 'username'
+            multiline: False
+            write_tab: False
+        TextInput:
+            id: password_field
+            hint_text: 'password'
+            password: True
+            allow_copy: False
+            multiline: False
+            write_tab: False
+        PhoneInput:
+            id: phone_field
+            hint_text: 'phone number'
+            multiline: False
+            write_tab: False
+        Button:
+            text: 'Create Account'
+            on_press: root.attempt_creation()
+        Button:
+            text: 'Already have an account?'
+            on_press: root.switch_to_login()

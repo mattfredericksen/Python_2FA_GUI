@@ -69,29 +69,27 @@ def display():
 
 
 def create_user(username: str, password: str, phone: str):
+    con = sqlite3.connect(DB_NAME)
+
+    # check if username already exists
+    if con.execute('SELECT username FROM account WHERE username = ?', (username,)).fetchone():
+        raise BadUsernameError(f'user "{username}" already exists')
+
     phone = Fernet(create_fernet_key(username, password)).encrypt(phone.encode())
     password = bcrypt.hash(password)
 
-    con = sqlite3.connect(DB_NAME)
-    try:
-        con.execute('INSERT INTO account VALUES (?, ?, ?)', (username, password, phone))
-    except sqlite3.IntegrityError as e:
-        if 'UNIQUE constraint failed' in e.args[0]:
-            raise BadUsernameError(f'user "{username}" already exists')
-        else:
-            raise
-    else:
-        con.commit()
-    finally:
-        con.close()
+    con.execute('INSERT INTO account VALUES (?, ?, ?)', (username, password, phone))
+    con.commit()
+    con.close()
 
 
-def authenticate_user(phone: str):
+def send_auth_code(phone: str):
     code = f'{secrets.randbelow(1000000):06}'
     message = client.messages.create(
         to=f'+1{phone}',
         from_='+12058982226',
         body=f'Your CSCE3550 verification code is {code}')
+    # TODO: see if message success/failure can be checked
     return code
 
 
@@ -114,11 +112,8 @@ def login(username: str, password: str) -> str:
     if not bcrypt.verify(password, user_data['password']):
         raise BadPasswordError(f'incorrect password for user "{username}"')
 
-    # matching username and password, print the decrypted phone number
-    phone = Fernet(create_fernet_key(username, password)).decrypt(user_data['phone']).decode()
-    print(f'Successful login, phone = {phone}')
-
-    return phone
+    # matching username and password: return the decrypted phone number
+    return Fernet(create_fernet_key(username, password)).decrypt(user_data['phone']).decode()
 
 
 if __name__ == '__main__':

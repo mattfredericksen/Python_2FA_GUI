@@ -7,9 +7,17 @@
     password: True
     allow_copy: False
 
+
 <LoginScreen>:
-    username: username_field.text
-    password: password_field.text
+    username_field: username_field
+    password_field: password_field
+    login_button: login_button
+
+    on_enter:
+        username_field.focus = True
+    on_leave:
+        username_field.text = ''
+        password_field.text = ''
 
     BoxLayout:
         orientation: 'vertical'
@@ -18,11 +26,11 @@
         TextInputLine:
             id: username_field
             hint_text: 'username'
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
         PasswordInput:
             id: password_field
             hint_text: 'password'
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
         Button:
             id: login_button
             text: 'Login'
@@ -30,26 +38,44 @@
                 root.attempt_login()
         Button:
             text: 'Create Account'
-            on_press: root.switch_to_create_account()
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'create_account'
+
 
 <VerificationScreen>:
+    code_field: code_field
+    submit_button: submit_button
+
+    on_enter: code_field.focus = True
+
     BoxLayout:
         orientation: 'vertical'
         Label:
             id: label
-            text: 'Please enter the verification code sent to phone ending with {}'
+            text: 'Please enter the verification code sent to phone ending with ' + root.phone[-4:]
         TextInputLine:
             id: code_field
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
         Button:
             id: submit_button
             text: 'Submit'
             on_press: root.verify_code()
 
+
 <CreateAccountScreen>:
-    username: username_field.text
-    password: password_field.text
-    phone: phone_field.text
+    username_field: username_field
+    password_field: password_field
+    phone_field: phone_field
+    create_account_button: create_account_button
+
+    on_enter:
+        username_field.focus = True
+
+    on_leave:
+        username_field.text = ''
+        password_field.text = ''
+        phone_field.text = ''
 
     BoxLayout:
         orientation: 'vertical'
@@ -58,15 +84,15 @@
         TextInputLine:
             id: username_field
             hint_text: 'username'
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
         PasswordInput:
             id: password_field
             hint_text: 'password'
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
         PhoneInput:
             id: phone_field
             hint_text: 'phone number'
-            on_text_validate: root.on_enter()
+            on_text_validate: root.text_validate()
             multiline: False
             write_tab: False
         Button:
@@ -75,4 +101,6 @@
             on_press: root.attempt_creation()
         Button:
             text: 'Already have an account?'
-            on_press: root.switch_to_login()
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'login'

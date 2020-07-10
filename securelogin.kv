@@ -1,20 +1,30 @@
-<LoginScreen>
+<TextInputLine@TextInput>:
+    text_validate_unfocus: False
+    multiline: False
+    write_tab: False
+
+<PasswordInput@TextInputLine>:
+    password: True
+    allow_copy: False
+
+<LoginScreen>:
+    username: username_field.text
+    password: password_field.text
+
     BoxLayout:
         orientation: 'vertical'
         Label:
             text: 'Login Screen'
-        TextInput:
+        TextInputLine:
             id: username_field
             hint_text: 'username'
-            multiline: False
-            write_tab: False
-        TextInput:
+            on_text_validate: root.on_enter()
+        PasswordInput:
             id: password_field
             hint_text: 'password'
-            password: True
-            multiline: False
-            write_tab: False
+            on_text_validate: root.on_enter()
         Button:
+            id: login_button
             text: 'Login'
             on_press:
                 root.attempt_login()
@@ -22,19 +32,21 @@
             text: 'Create Account'
             on_press: root.switch_to_create_account()
 
-<VerificationScreen>
+<VerificationScreen>:
     BoxLayout:
         orientation: 'vertical'
         Label:
             id: label
-            text: 'Please enter the verification code sent to {}'
-        TextInput:
-            multiline: False
+            text: 'Please enter the verification code sent to phone ending with {}'
+        TextInputLine:
             id: code_field
+            on_text_validate: root.on_enter()
         Button:
+            id: submit_button
             text: 'Submit'
+            on_press: root.verify_code()
 
-<CreateAccountScreen>
+<CreateAccountScreen>:
     username: username_field.text
     password: password_field.text
     phone: phone_field.text
@@ -43,24 +55,22 @@
         orientation: 'vertical'
         Label:
             text: 'Create Account Screen'
-        TextInput:
+        TextInputLine:
             id: username_field
             hint_text: 'username'
-            multiline: False
-            write_tab: False
-        TextInput:
+            on_text_validate: root.on_enter()
+        PasswordInput:
             id: password_field
             hint_text: 'password'
-            password: True
-            allow_copy: False
-            multiline: False
-            write_tab: False
+            on_text_validate: root.on_enter()
         PhoneInput:
             id: phone_field
             hint_text: 'phone number'
+            on_text_validate: root.on_enter()
             multiline: False
             write_tab: False
         Button:
+            id: create_account_button
             text: 'Create Account'
             on_press: root.attempt_creation()
         Button:

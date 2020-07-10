@@ -1,7 +1,9 @@
 import db_stuff
-from phonenumbers import AsYouTypeFormatter, parse as parse_number, is_valid_number
+from phonenumbers import AsYouTypeFormatter, format_number,  \
+                         parse as parse_number, is_valid_number
 from phonenumbers.phonenumberutil import NumberParseException
 import re
+import secrets
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -30,8 +32,8 @@ class PhoneInput(TextInput):
         self.text = self.formatter._current_output
 
         # modifying self.text resets cursor position, so here
-        # we make sure correct the cursor position by checking
-        # the number of digits before the cursor
+        # we correct the cursor position by ensuring the same
+        # number of digits are to the left of the cursor
         digit_count = 0
         for i, c in enumerate(self.text):
             if digit_count == digits_before_cursor:
@@ -62,7 +64,17 @@ class PhoneInput(TextInput):
 
 
 class LoginScreen(Screen):
+    # TODO: implement on_enter_validate
+    def on_enter(self):
+        if not self.username:
+            self.ids.username_field.focus = True
+        elif not self.password:
+            self.ids.password_field.focus = True
+        else:
+            self.ids.login_button.trigger_action()
+
     def attempt_login(self):
+        self.ids.login_button.disabled = True
         # TODO: sanitize inputs
         try:
             phone = db_stuff.login(self.ids.username_field.text, self.ids.password_field.text)
@@ -73,7 +85,11 @@ class LoginScreen(Screen):
             self.manager.switch_to(VerificationScreen(phone))
             self.manager.transition.direction = 'down'
 
+        self.ids.login_button.disabled = False
+
     def switch_to_create_account(self):
+        self.ids.username_field.text = ''
+        self.ids.password_field.text = ''
         self.manager.transition.direction = 'left'
         self.manager.current = 'create_account'
 
@@ -81,23 +97,44 @@ class LoginScreen(Screen):
 class VerificationScreen(Screen):
     def __init__(self, phone, **kwargs):
         super().__init__(**kwargs)
-        self.ids.label.text = self.ids.label.text.format(phone)
+        self.ids.label.text = self.ids.label.text.format(phone[-4:])
+        self.code = '0'  # db_stuff.authenticate_user(phone)
+
+    def on_enter(self):
+        if self.ids.code_field.text:
+            self.ids.submit_button.trigger_action()
+
+    def verify_code(self):
+        if secrets.compare_digest(self.code, self.ids.code_field.text):
+            print('success')
+        else:
+            print('fail')
 
 
 class CreateAccountScreen(Screen):
     # TODO: implement on_enter_validate
+    def on_enter(self):
+        if not self.username:
+            self.ids.username_field.focus = True
+        elif not self.password:
+            self.ids.password_field.focus = True
+        elif not self.phone:
+            self.ids.phone_field.focus = True
+        else:
+            self.ids.create_account_button.trigger_action()
 
     def switch_to_login(self):
         # clear any user input
-        for text_field in self.ids:
-            self.ids[text_field].text = ''
+        self.ids.username_field.text = ''
+        self.ids.password_field.text = ''
+        self.ids.phone_field.text = ''
 
         # switch to login screen
         self.manager.transition.direction = 'right'
         self.manager.current = 'login'
 
     def attempt_creation(self):
-        # TODO: check if unicode characters mess with this (perhaps in Fernet?)
+        self.ids.create_account_button.disabled = True
 
         # create a list of all problems with user input
         errors = []
@@ -107,16 +144,15 @@ class CreateAccountScreen(Screen):
             errors.append('password is required')
         if re.search(r'[^A-Za-z0-9]', self.username):
             errors.append('username can only contain letters and numbers')
-        if len(self.username) > 16:
-            errors.append('username maximum length is 16 characters')
-        if len(self.password) > 32:
-            errors.append('password maximum length is 32 characters')
+        if len(self.username) > 36:
+            errors.append('username maximum length is 32 characters')
 
         if not self.phone:
             errors.append('phone number is required')
         else:
             try:
-                valid = is_valid_number(parse_number(self.phone, 'US'))
+                phone = parse_number(self.phone, 'US')
+                valid = is_valid_number(phone)
             except NumberParseException:
                 valid = False
             if not valid:
@@ -125,17 +161,20 @@ class CreateAccountScreen(Screen):
         if not errors:
             try:
                 # TODO: put up a spinner so the program doesn't seem frozen
-                db_stuff.create_user(self.username, self.password, self.phone)
+                db_stuff.create_user(self.username, self.password, format_number(phone, 'NATIONAL'))
             except db_stuff.Error as e:
                 errors.append(e.message)
             else:
                 # TODO: display account creation success screen
                 print(f'SUCCESS: created user "{self.username}"')
                 self.switch_to_login()
+                return
 
         print('ERRORS:')
         for error in errors:
             print(f'\t{error}')
+
+        self.create_account_button.disabled = False
 
 
 class SecureLoginApp(App):

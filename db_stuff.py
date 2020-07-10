@@ -2,9 +2,15 @@ from passlib.hash import bcrypt, hex_sha256, sha256_crypt
 from cryptography.fernet import Fernet
 import base64
 import sqlite3
+from twilio.rest import Client
+import secrets
 from pprint import pprint
 
-DB_NAME = 'accounts.db'
+DB_NAME = 'account.db'
+
+account_sid = "ACc45b3c8aec14c2ed56d30f7afbf4c1d7"
+auth_token = "b1ca44a2eec02ed3c184956438231f16"
+client = Client(account_sid, auth_token)
 
 
 class Error(Exception):
@@ -26,7 +32,7 @@ class BadPasswordError(Error):
 def create_fernet_key(username: str, password: str) -> bytes:
     """Transforms a username/password pair into a fernet encryption key"""
 
-    # get (somewhat random) 16 characters to use as salt
+    # get unique 16 characters to use as salt
     # note: getting the salt from the username was only done
     # to avoid creating another column in the database
     salt = hex_sha256.hash(username)[:16]
@@ -43,12 +49,12 @@ def create_db():
     con = sqlite3.connect(DB_NAME)
     # cur = con.cursor()
     try:
-        con.execute('''CREATE TABLE accounts
+        con.execute('''CREATE TABLE account
                        (username VARCHAR UNIQUE NOT NULL, 
                         password VARCHAR NOT NULL, 
                         phone VARCHAR NOT NULL);''')
-    except sqlite3.OperationalError:
-        print('create_db: table already exists')
+    except sqlite3.OperationalError as e:
+        print(f'create_db: table already exists\n\t{e}')
     else:
         con.commit()
     finally:
@@ -57,7 +63,7 @@ def create_db():
 
 def display():
     con = sqlite3.connect(DB_NAME)
-    user_data = con.execute('SELECT * FROM accounts').fetchall()
+    user_data = con.execute('SELECT * FROM account').fetchall()
     con.close()
     pprint({u[0]: {'password': u[1], 'phone': u[2]} for u in user_data})
 
@@ -68,7 +74,7 @@ def create_user(username: str, password: str, phone: str):
 
     con = sqlite3.connect(DB_NAME)
     try:
-        con.execute('INSERT INTO accounts VALUES (?, ?, ?)', (username, password, phone))
+        con.execute('INSERT INTO account VALUES (?, ?, ?)', (username, password, phone))
     except sqlite3.IntegrityError as e:
         if 'UNIQUE constraint failed' in e.args[0]:
             raise BadUsernameError(f'user "{username}" already exists')
@@ -80,15 +86,13 @@ def create_user(username: str, password: str, phone: str):
         con.close()
 
 
-def decode_phone(phone: bytes, username: str, password: str) -> str:
-    return Fernet(create_fernet_key(username, password)).decrypt(phone).decode()
-
-
 def authenticate_user(phone: str):
-    # generate code
-    # text code
-    # expire code after 60 seconds
-    pass
+    code = f'{secrets.randbelow(1000000):06}'
+    message = client.messages.create(
+        to=f'+1{phone}',
+        from_='+12058982226',
+        body=f'Your CSCE3550 verification code is {code}')
+    return code
 
 
 def login(username: str, password: str) -> str:
@@ -99,7 +103,7 @@ def login(username: str, password: str) -> str:
 
     # retrieve user information from the database
     # using '?' as a placeholder prevents injection attacks
-    user_data = con.execute('SELECT * FROM accounts WHERE username = ?', (username,)).fetchone()
+    user_data = con.execute('SELECT * FROM account WHERE username = ?', (username,)).fetchone()
     con.close()
 
     # if no matching username was found
@@ -111,7 +115,7 @@ def login(username: str, password: str) -> str:
         raise BadPasswordError(f'incorrect password for user "{username}"')
 
     # matching username and password, print the decrypted phone number
-    phone = decode_phone(user_data['phone'], username, password)
+    phone = Fernet(create_fernet_key(username, password)).decrypt(user_data['phone']).decode()
     print(f'Successful login, phone = {phone}')
 
     return phone
@@ -120,10 +124,10 @@ def login(username: str, password: str) -> str:
 if __name__ == '__main__':
     create_db()
     try:
-        create_user('username', 'password', 'a_real_phone_number')
-        create_user('user', 'pass', 'a_real_phone_number')
-        create_user('u', 'p', 'a_real_phone_number')
-        create_user('password', 'username', 'a_real_phone_number')
+        create_user('username', 'password', '9726704514')
+        create_user('user', 'pass', '9726704514')
+        create_user('u', 'p', '9726704514')
+        create_user('password', 'username', '9726704514')
     except Exception as e:
         print(e)
     display()

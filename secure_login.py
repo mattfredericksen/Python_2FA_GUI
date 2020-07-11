@@ -1,7 +1,6 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 
-from phoneinput import PhoneInput
 from loginscreen import LoginScreen
 from verificationscreen import VerificationScreen
 from createaccountscreen import CreateAccountScreen

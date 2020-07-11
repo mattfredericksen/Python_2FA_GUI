@@ -32,14 +32,14 @@ class BadPasswordError(Error):
 def create_fernet_key(username: str, password: str) -> bytes:
     """Transforms a username/password pair into a fernet encryption key"""
 
-    # get unique 16 characters to use as salt
-    # note: getting the salt from the username was only done
-    # to avoid creating another column in the database
+    # Get unique 16 characters to use as salt.
+    # Note: getting the salt from the username was only done
+    #       to avoid creating another column in the database.
     salt = hex_sha256.hash(username)[:16]
 
-    # the fernet key needs to be 32 base64-encoded bytes,
+    # The fernet key needs to be 32 base64-encoded bytes,
     # so we get the last 32 characters of the hashed password.
-    # somehow breaking the encryption would not reveal the user's
+    # Somehow breaking the encryption would not reveal the user's
     # password, and the user does not need to store the key anywhere.
     key = sha256_crypt.hash(password, salt=salt)[-32:]
     return base64.encodebytes(key.encode())

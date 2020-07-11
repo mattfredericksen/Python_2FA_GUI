@@ -1,7 +1,5 @@
 from kivy.uix.screenmanager import Screen
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.properties import AliasProperty
+from alertpopup import AlertPopup
 
 from phonenumbers import format_number, is_valid_number, parse as parse_number
 from phonenumbers.phonenumberutil import NumberParseException
@@ -56,6 +54,10 @@ class CreateAccountScreen(Screen):
                 errors.append(e.message)
             else:
                 # TODO: display account creation success screen
+                popup = AlertPopup(title='Success')
+                popup.label.text = f'user "{self.username_field.text}" has been created'
+                popup.button.text = 'Go to Login'
+                popup.open()
                 self.manager.transition.direction = 'right'
                 self.manager.current = 'login'
                 return
@@ -63,9 +65,9 @@ class CreateAccountScreen(Screen):
         for i, error in enumerate(errors):
             errors[i] = f'\u2022 {error}'
 
-        popup = Popup(title='Errors',
-                      content=Label(text='\n'.join(errors), line_height=1.2),
-                      size_hint=(.5, .5))
+        popup = AlertPopup(title='Errors')
+        popup.label.text = '\n'.join(errors)
+        popup.button.text = 'Dismiss'
         popup.open()
 
         self.create_account_button.disabled = False

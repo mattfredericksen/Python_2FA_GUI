@@ -1,11 +1,21 @@
+"""
+This module contains the LoginScreen widget used by SecureLoginApp.
+
+LoginScreen handles attempts to log in, moving the user to
+VerificationScreen if the username and password are valid.
+"""
+
 from kivy.uix.screenmanager import Screen
 from customwidgets.alertpopup import AlertPopup
-import account_management
+from account_management import login, AccountError
 
 
 class LoginScreen(Screen):
-    # TODO: implement on_enter_validate
+    """Screen Widget for logging in to an account"""
+
     def text_validate(self):
+        """On [enter] adjust focus. Trigger button if fields are not empty."""
+
         if not self.username_field.text:
             self.username_field.focus = True
         elif not self.password_field.text:
@@ -14,18 +24,24 @@ class LoginScreen(Screen):
             self.login_button.trigger_action()
 
     def attempt_login(self):
+        """Attempt to log in. On success, authenticate. On fail, alert user."""
+
+        # disable the button so the user can't spam it
         self.login_button.disabled = True
-        # TODO: sanitize inputs
+
+        # attempt to log in
         try:
-            phone = account_management.login(self.username_field.text, self.password_field.text)
-        except account_management.AccountError as error:
-            popup = AlertPopup(title='Error')
-            popup.label.text = error.message
-            popup.button.text = 'Dismiss'
+            phone = login(self.username_field.text, self.password_field.text)
+        except AccountError as error:
+            popup = AlertPopup(title='Error',
+                               label=error.message,
+                               button='Dismiss')
             popup.open()
         else:
+            # valid credentials: authenticate via SMS
             self.manager.transition.direction = 'down'
             self.manager.get_screen('verification').phone = phone
             self.manager.current = 'verification'
 
+        # enable the button after processing is complete
         self.login_button.disabled = False

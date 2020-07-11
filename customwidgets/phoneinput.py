@@ -1,3 +1,9 @@
+"""
+This module contains the PhoneInput class, which inherits from TextInput.
+
+PhoneInput does fancy stuff for actively formatting phone number input.
+"""
+
 from kivy.uix.textinput import TextInput
 from phonenumbers import AsYouTypeFormatter
 import re

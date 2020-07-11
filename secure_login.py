@@ -1,9 +1,12 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 
-from loginscreen import LoginScreen
-from verificationscreen import VerificationScreen
-from createaccountscreen import CreateAccountScreen
+from customwidgets.loginscreen import LoginScreen
+from customwidgets.verificationscreen import VerificationScreen
+from customwidgets.createaccountscreen import CreateAccountScreen
+
+from account_management import setup_db
+import sqlite3
 
 
 class SecureLoginApp(App):
@@ -16,4 +19,10 @@ class SecureLoginApp(App):
 
 
 if __name__ == '__main__':
-    SecureLoginApp().run()
+    try:
+        setup_db()
+    except sqlite3.Error as error:
+        print(error, '\n')
+        input('Unable to connect to database. Press [enter] to exit.')
+    else:
+        SecureLoginApp().run()

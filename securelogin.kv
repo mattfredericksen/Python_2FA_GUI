@@ -1,15 +1,19 @@
-#:import PhoneInput phoneinput.PhoneInput
+#:import PhoneInput customwidgets.phoneinput.PhoneInput
+#:import sub re.sub
 
 <TextInputLine@TextInput>:
     text_validate_unfocus: False
     multiline: False
     write_tab: False
 
+<UsernameInput@TextInputLine>:
+    on_text: self.text = sub('\W', '', self.text[:32])
+
 <PasswordInput@TextInputLine>:
     password: True
     allow_copy: False
 
-<AlertPopup@Popup>:
+<AlertPopup>:
     size_hint: .5, .5
     label: label
     button: button
@@ -45,7 +49,7 @@
         Label:
             text: 'Login Screen'
             bold: True
-        TextInputLine:
+        UsernameInput:
             id: username_field
             hint_text: 'username'
             on_text_validate: root.text_validate()
@@ -106,7 +110,7 @@
         Label:
             text: 'Create Account Screen'
             bold: True
-        TextInputLine:
+        UsernameInput:
             id: username_field
             hint_text: 'username'
             on_text_validate: root.text_validate()

@@ -1,5 +1,6 @@
 from kivy.uix.screenmanager import Screen
-import db_stuff
+from customwidgets.alertpopup import AlertPopup
+import account_management
 
 
 class LoginScreen(Screen):
@@ -16,9 +17,12 @@ class LoginScreen(Screen):
         self.login_button.disabled = True
         # TODO: sanitize inputs
         try:
-            phone = db_stuff.login(self.username_field.text, self.password_field.text)
-        except db_stuff.Error as e:
-            print(e)
+            phone = account_management.login(self.username_field.text, self.password_field.text)
+        except account_management.AccountError as error:
+            popup = AlertPopup(title='Error')
+            popup.label.text = error.message
+            popup.button.text = 'Dismiss'
+            popup.open()
         else:
             self.manager.transition.direction = 'down'
             self.manager.get_screen('verification').phone = phone

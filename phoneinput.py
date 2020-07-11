@@ -4,6 +4,8 @@ import re
 
 
 class PhoneInput(TextInput):
+    text_validate_unfocus = False
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.formatter = AsYouTypeFormatter('US')

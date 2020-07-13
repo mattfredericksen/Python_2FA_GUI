@@ -20,7 +20,7 @@ DB_NAME = 'account.db'
 
 
 class AccountError(Exception):
-    """Raised when an error occurs with logging in or creating an account"""
+    """Raised when a database error occurs with logging in or creating an account"""
     def __init__(self, message):
         self.message = message
 

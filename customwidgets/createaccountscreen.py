@@ -74,7 +74,7 @@ class CreateAccountScreen(Screen):
             else:
                 # account created successfully
                 AlertPopup(title='Success',
-                           label=f'user "{self.username_field.text}" '
+                           label=f'User "{self.username_field.text}" '
                                  'has been created',
                            button='Go to Login',
                            on_dismiss=self.switch_to_login).open()

@@ -76,6 +76,7 @@ def create_user(username: str, password: str, phone: str):
     con = sqlite3.connect(DB_NAME)
 
     # check if username already exists (case-insensitive)
+    # using '?' as a placeholder prevents injection attacks
     if con.execute('SELECT username FROM account '
                    'WHERE LOWER(username) = LOWER(?)', (username,)).fetchone():
         raise AccountError(f'User "{username}" already exists')
@@ -102,7 +103,8 @@ def login(username: str, password: str) -> str:
 
     # retrieve user information from the database
     # using '?' as a placeholder prevents injection attacks
-    user_data = con.execute('SELECT * FROM account WHERE username = ?', (username,)).fetchone()
+    user_data = con.execute('SELECT * FROM account '
+                            'WHERE LOWER(username) = LOWER(?)', (username,)).fetchone()
     con.close()
 
     # if no matching username was found

@@ -15,7 +15,6 @@ class LoginScreen(Screen):
 
     def text_validate(self):
         """On [enter] adjust focus. Trigger button if fields are not empty."""
-
         if not self.username_field.text:
             self.username_field.focus = True
         elif not self.password_field.text:
@@ -33,14 +32,9 @@ class LoginScreen(Screen):
         try:
             phone = login(self.username_field.text, self.password_field.text)
         except AccountError as error:
-            # quick fix to prevent button spam while alert is open
-            self.username_field.focus = False
-            self.password_field.focus = False
-
-            popup = AlertPopup(title='Error',
-                               label=error.message,
-                               button='Dismiss')
-            popup.open()
+            AlertPopup(title='Error',
+                       label=error.message,
+                       button='Dismiss').open()
         else:
             # valid credentials: authenticate via SMS
             self.manager.get_screen('verification').phone = phone

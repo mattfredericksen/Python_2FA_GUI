@@ -73,19 +73,17 @@ class CreateAccountScreen(Screen):
                 errors.append(e.message)
             else:
                 # account created successfully
-                popup = AlertPopup(title='Success',
-                                   label=f'user "{self.username_field.text}" '
-                                         'has been created',
-                                   button='Go to Login')
-                popup.open()
-                popup.bind(on_dismiss=self.switch_to_login)
+                AlertPopup(title='Success',
+                           label=f'user "{self.username_field.text}" '
+                                 'has been created',
+                           button='Go to Login',
+                           on_dismiss=self.switch_to_login).open()
                 return
 
         # display input errors to the user
-        popup = AlertPopup(title='Errors',
-                           label='\n'.join(f'\u2022 {e}' for e in errors),
-                           button='Dismiss')
-        popup.open()
+        AlertPopup(title='Errors',
+                   label='\n'.join(f'\u2022 {e}' for e in errors),
+                   button='Dismiss').open()
 
         self.create_account_button.disabled = False
 

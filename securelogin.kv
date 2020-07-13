@@ -1,4 +1,5 @@
 #:import PhoneInput customwidgets.phoneinput.PhoneInput
+#:import PasswordInput customwidgets.passwordinput.PasswordInput
 #:import sub re.sub
 
 <TextInputLine@TextInput>:
@@ -9,7 +10,10 @@
 <UsernameInput@TextInputLine>:
     on_text: self.text = sub('\W', '', self.text[:32])
 
-<PasswordInput@TextInputLine>:
+<PasswordInput>:
+    text_validate_unfocus: False
+    multiline: False
+    write_tab: False
     password: True
     allow_copy: False
 

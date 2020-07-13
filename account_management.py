@@ -10,11 +10,14 @@ login() validates a username and password combination,
 returning the user's decrypted phone number upon success.
 """
 
-from passlib.hash import bcrypt, hex_sha256, sha256_crypt
+from passlib.hash import bcrypt, hex_sha256
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 import sqlite3
-from pprint import pprint
+
 
 DB_NAME = 'account.db'
 
@@ -57,12 +60,14 @@ def create_fernet_key(username: str, password: str) -> bytes:
     #       to avoid creating another column in the database.
     salt = hex_sha256.hash(username)[:16]
 
-    # The fernet key needs to be 32 base64-encoded bytes,
-    # so we get the last 32 characters of the hashed password.
-    # Somehow breaking the encryption would not reveal the user's
-    # password, and the user does not need to store the key anywhere.
-    key = sha256_crypt.hash(password, salt=salt)[-32:]
-    return base64.encodebytes(key.encode())
+    # this process is recommended by the cryptography library
+    kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),
+                     length=32,
+                     salt=salt.encode(),
+                     iterations=1000000,
+                     backend=default_backend())
+
+    return base64.urlsafe_b64encode(kdf.derive(password.encode()))
 
 
 def create_user(username: str, password: str, phone: str):

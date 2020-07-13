@@ -10,7 +10,7 @@ login() validates a username and password combination,
 returning the user's decrypted phone number upon success.
 """
 
-from passlib.hash import bcrypt, hex_sha256
+from passlib.hash import bcrypt_sha256, hex_sha256
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -64,7 +64,7 @@ def create_fernet_key(username: str, password: str) -> bytes:
     kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),
                      length=32,
                      salt=salt.encode(),
-                     iterations=1000000,
+                     iterations=100000,
                      backend=default_backend())
 
     return base64.urlsafe_b64encode(kdf.derive(password.encode()))
@@ -81,7 +81,9 @@ def create_user(username: str, password: str, phone: str):
 
     # encrypt the phone number and hash the password
     phone = Fernet(create_fernet_key(username, password)).encrypt(phone.encode())
-    password = bcrypt.hash(password)
+
+    # number of rounds = 2**{rounds} = 8192
+    password = bcrypt_sha256.using(rounds=13).hash(password)
 
     # insert the user into the database.
     # input validation has already occurred.
@@ -107,7 +109,7 @@ def login(username: str, password: str) -> str:
         raise AccountError(f'user "{username}" does not exist')
 
     # if the password was incorrect
-    if not bcrypt.verify(password, user_data['password']):
+    if not bcrypt_sha256.verify(password, user_data['password']):
         raise AccountError(f'incorrect password for user "{username}"')
 
     # matching username and password: return the decrypted phone number

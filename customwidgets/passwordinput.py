@@ -10,8 +10,9 @@ class PasswordInput(TextInput):
         self.timeout_trigger = Clock.create_trigger(self.timeout, 30)
 
     def on_text(self, instance, value):
-        # reset the timeout when the user interacts with the field
+        # stop the timeout when the user interacts with the field
         self.timeout_trigger.cancel()
+        # restart the timeout if the field is not empty
         if value:
             self.timeout_trigger()
 

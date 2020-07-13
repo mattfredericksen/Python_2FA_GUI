@@ -78,9 +78,7 @@ class CreateAccountScreen(Screen):
                                          'has been created',
                                    button='Go to Login')
                 popup.open()
-                self.manager.transition.direction = 'right'
-                self.manager.current = 'login'
-                self.create_account_button.disabled = False
+                popup.bind(on_dismiss=self.switch_to_login)
                 return
 
         # display input errors to the user
@@ -89,4 +87,9 @@ class CreateAccountScreen(Screen):
                            button='Dismiss')
         popup.open()
 
+        self.create_account_button.disabled = False
+
+    def switch_to_login(self, popup=None):
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'login'
         self.create_account_button.disabled = False

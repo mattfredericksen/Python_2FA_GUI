@@ -30,6 +30,7 @@ option is to sign out.
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
+from kivy.config import Config
 
 from customwidgets.loginscreen import LoginScreen
 from customwidgets.verificationscreen import VerificationScreen
@@ -59,4 +60,6 @@ if __name__ == '__main__':
         print(error, '\n')
         input('Unable to connect to database. Press [enter] to exit.')
     else:
+        Config.set('graphics', 'width', '600')
+        Config.set('graphics', 'height', '500')
         SecureLoginApp().run()

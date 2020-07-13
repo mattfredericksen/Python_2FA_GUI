@@ -38,13 +38,17 @@ class CreateAccountScreen(Screen):
 
         if not self.username_field.text:
             errors.append('username is required')
-        if re.search(r'[^A-Za-z0-9]', self.username_field.text):
+        elif re.search(r'[^A-Za-z0-9]', self.username_field.text):
             errors.append('username can only contain letters and numbers')
+
+        # this shouldn't be possible (field has length cap), but just in case
         if len(self.username_field.text) > 32:
             errors.append('username maximum length is 32 characters')
 
         if not self.password_field.text:
             errors.append('password is required')
+        elif len(self.password_field.text) < 8:
+            errors.append('password minimum length is 8 characters')
 
         if not self.phone_field.text:
             errors.append('phone number is required')

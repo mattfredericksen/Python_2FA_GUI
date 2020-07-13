@@ -33,14 +33,18 @@ class LoginScreen(Screen):
         try:
             phone = login(self.username_field.text, self.password_field.text)
         except AccountError as error:
+            # quick fix to prevent button spam while alert is open
+            self.username_field.focus = False
+            self.password_field.focus = False
+
             popup = AlertPopup(title='Error',
                                label=error.message,
                                button='Dismiss')
             popup.open()
         else:
             # valid credentials: authenticate via SMS
-            self.manager.transition.direction = 'down'
             self.manager.get_screen('verification').phone = phone
+            self.manager.transition.direction = 'down'
             self.manager.current = 'verification'
 
         # enable the button after processing is complete

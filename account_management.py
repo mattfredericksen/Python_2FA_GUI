@@ -75,9 +75,10 @@ def create_user(username: str, password: str, phone: str):
 
     con = sqlite3.connect(DB_NAME)
 
-    # check if username already exists
-    if con.execute('SELECT username FROM account WHERE username = ?', (username,)).fetchone():
-        raise AccountError(f'user "{username}" already exists')
+    # check if username already exists (case-insensitive)
+    if con.execute('SELECT username FROM account '
+                   'WHERE LOWER(username) = LOWER(?)', (username,)).fetchone():
+        raise AccountError(f'User "{username}" already exists')
 
     # encrypt the phone number and hash the password
     phone = Fernet(create_fernet_key(username, password)).encrypt(phone.encode())
@@ -106,11 +107,11 @@ def login(username: str, password: str) -> str:
 
     # if no matching username was found
     if not user_data:
-        raise AccountError(f'user "{username}" does not exist')
+        raise AccountError(f'User "{username}" does not exist')
 
     # if the password was incorrect
     if not bcrypt_sha256.verify(password, user_data['password']):
-        raise AccountError(f'incorrect password for user "{username}"')
+        raise AccountError(f'Incorrect password for user "{username}"')
 
     # matching username and password: return the decrypted phone number
     return Fernet(create_fernet_key(username, password)).decrypt(user_data['phone']).decode()

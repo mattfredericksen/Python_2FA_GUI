@@ -60,6 +60,6 @@ if __name__ == '__main__':
         print(error, '\n')
         input('Unable to connect to database. Press [enter] to exit.')
     else:
-        Config.set('graphics', 'width', '600')
-        Config.set('graphics', 'height', '500')
+        Config.set('graphics', 'width', '650')
+        Config.set('graphics', 'height', '550')
         SecureLoginApp().run()

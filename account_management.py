@@ -39,11 +39,14 @@ def setup_db():
     con = sqlite3.connect(DB_NAME)
 
     # create the table and ignore the error if it already exists
+    # explicit primary key is unnecessary:
+    #     https://www.sqlite.org/lang_createtable.html#rowid
     try:
         con.execute('''CREATE TABLE account
-                       (username VARCHAR UNIQUE NOT NULL, 
+                       (username VARCHAR NOT NULL, 
                         password VARCHAR NOT NULL, 
-                        phone VARCHAR NOT NULL);''')
+                        phone VARCHAR NOT NULL,
+                        UNIQUE(username COLLATE NOCASE));''')
     except sqlite3.OperationalError as e:
         print(f'setup_db(): {e}')
     else:
@@ -76,6 +79,7 @@ def create_user(username: str, password: str, phone: str):
     con = sqlite3.connect(DB_NAME)
 
     # check if username already exists (case-insensitive)
+    # cannot use LIKE since usernames can have underscores
     # using '?' as a placeholder prevents injection attacks
     if con.execute('SELECT username FROM account '
                    'WHERE LOWER(username) = LOWER(?)', (username,)).fetchone():

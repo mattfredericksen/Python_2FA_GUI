@@ -36,6 +36,9 @@ class CreateAccountScreen(Screen):
         # list of all problems with user input
         errors = []
 
+        # the following series of conditionals are all for validating
+        # user input before we attempt to insert it into the database
+
         if not self.username_field.text:
             errors.append('username is required')
 

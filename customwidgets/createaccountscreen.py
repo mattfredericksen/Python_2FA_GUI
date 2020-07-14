@@ -81,9 +81,11 @@ class CreateAccountScreen(Screen):
                 return
 
         # display input errors to the user
-        AlertPopup(title='Errors',
-                   label='\n'.join(f'\u2022 {e}' for e in errors),
-                   button='Dismiss').open()
+        popup = AlertPopup(title='Errors',
+                           label='\n'.join(f'\u2022 {e}' for e in errors),
+                           button='Dismiss')
+        popup.label.halign = 'left'
+        popup.open()
 
         self.create_account_button.disabled = False
 

@@ -46,7 +46,6 @@ class CreateAccountScreen(Screen):
         elif re.search(r'\W', self.username_field.text):
             errors.append('username can only contain letters, numbers, and underscores')
 
-
         if not self.password_field.text:
             errors.append('password is required')
         elif len(self.password_field.text) < 8:

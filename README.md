@@ -9,5 +9,5 @@ For a thorough description of the purpose and results of this project, please se
 2. Create a [virtual environment](https://docs.python.org/3.7/library/venv.html) with Python 3.7.8.
    - The application was tested with 3.7.1 and 3.7.8. Other versions are untested.
 3. Activate the virtual environment.
-4. Run `pip install -r requirements.txt`.
+4. Run `pip install -r requirements/<OS>.txt`, where `<OS>` is either `windows` or `linux`.
 5. Run `python secure_login.py`.

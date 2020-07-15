@@ -1,3 +1,3 @@
 .gitignore
 account.db
-venv-3.7.8/
+venv/

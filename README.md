@@ -2,7 +2,7 @@
 A UNT course project for CSCE 3550 (Computer Security). Completed on 07/14/2020.
 
 ### Project Details
-For a throrough description of this purpose and results of this project, please see the [Project Report](Project%20Report.pdf).
+For a thorough description of the purpose and results of this project, please see the [Project Report](Project%20Report.pdf).
 
 ### Setup
 1. Download all project files.

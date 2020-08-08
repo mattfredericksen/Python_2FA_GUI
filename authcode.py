@@ -15,10 +15,9 @@ import secrets
 def send_auth_code(phone: str):
     """Generate and send a random code. Returns the code."""
 
-    # Super secret - don't share - I will cancel the token if
-    # my account starts seeing unexpected activity
-    account_sid = "ACc45b3c8aec14c2ed56d30f7afbf4c1d7"
-    auth_token = "b1ca44a2eec02ed3c184956438231f16"
+    # Replace with credentials from your Twilio account
+    account_sid = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    auth_token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     client = Client(account_sid, auth_token)
 
     # secrets uses the most secure RNG available to the OS
@@ -28,7 +27,7 @@ def send_auth_code(phone: str):
     try:
         client.messages.create(
             to=f'+1{phone}',
-            from_='+12058982226',
+            from_='+1XXXXXXXXXX',
             body=f'Your SecureLogin verification code is {code}')
     except TwilioRestException:
         return None

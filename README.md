@@ -2,7 +2,7 @@
 A UNT course project for CSCE 3550 (Computer Security). Completed on 07/14/2020.
 
 ### Project Details
-For a thorough description of the purpose and results of this project, please see the [Project Report](Project%20Report.pdf).  
+For a thorough description of the purpose, methodology, and results of this project, please see the [Project Report](Project%20Report.pdf).  
   
 Briefly, the purpose was to demonstrate knowledge of and gain experience with implementing basic data security principles (mostly confidentiality, rather than integrity or availability). This was achieved through creating a "login interface," an application that allows a user to create and sign into an account using SMS two-factor authentication. More information about which security principles and technologies were used can be found on page 4 of the [Project Report](Project%20Report.pdf).
 
